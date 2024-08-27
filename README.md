@@ -31,6 +31,7 @@ python -m pip install -e GroundingDINO
 Install RAM & Tag2Text:
 
 ```bash
+git clone https://github.com/xinyu1205/recognize-anything.git
 python -m pip install -r ./recognize-anything/requirements.txt
 python -m pip install -e ./recognize-anything/
 ```
