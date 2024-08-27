@@ -251,7 +251,8 @@ def save_mask_data(caption, mask_list, boxes_filt, label_list, results_dir, temp
         json.dump(json_data, f)
 
 
-def save_mask_crop(origin_size, mask_list, boxes_list, label_list, temp_dir, results_dir, crop_dir, caption, boxes_filt_j ):
+def save_mask_crop(origin_size, mask_list, boxes_list, label_list, temp_dir, results_dir, crop_dir, caption,
+                   boxes_filt_j):
     # get current date and time
     current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     # convert datetime obj to string
@@ -275,7 +276,7 @@ def save_mask_crop(origin_size, mask_list, boxes_list, label_list, temp_dir, res
         int_box = box.astype(int)
         x0, y0, x1, y1 = int_box
         x0, y0, x1, y1 = int(x0 * scale_x), int(y0 * scale_y), int(x1 * scale_x), int(y1 * scale_y)
-         # mask
+        # mask
         h, w = mask.shape[-2:]
         mask_image = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
         mask_image = mask_image.numpy()
@@ -289,7 +290,7 @@ def save_mask_crop(origin_size, mask_list, boxes_list, label_list, temp_dir, res
             os.path.join(temp_dir, file_name),
             bbox_inches="tight", pad_inches=0.0
         )
-        
+
         mask_temp = cv2.imread(os.path.join(temp_dir, f"mask_temp_{crop_idx}.png"))
         img = cv2.cvtColor(mask_temp, cv2.COLOR_BGR2GRAY)
         mask_invert = cv2.bitwise_not(img)
@@ -315,7 +316,6 @@ def save_mask_crop(origin_size, mask_list, boxes_list, label_list, temp_dir, res
         # }
         # with open(os.path.join(crop_dir, f"{crop_idx}_box.json"), 'w') as f:
         #     json.dump(json_data, f)
-        
 
     print(f"Save {crop_idx} crop images")
 
@@ -434,9 +434,11 @@ def process_image(image_path, output_dir,
 
     ### save mask related image ###
     # save_mask_data(caption, masks, boxes_filt, pred_phrases, results_dir, temp_dir)
-    save_mask_crop((H, W), masks, boxes_filt.cpu().numpy(), pred_phrases, temp_dir, results_dir, crop_dir, caption, boxes_filt)
+    save_mask_crop((H, W), masks, boxes_filt.cpu().numpy(), pred_phrases, temp_dir, results_dir, crop_dir, caption,
+                   boxes_filt)
 
     return caption
+
 
 if __name__ == "__main__":
 
@@ -520,19 +522,26 @@ if __name__ == "__main__":
         if file_path.is_file() and file_path.suffix.lower() in image_extensions:
             files.append(file_path)
     print(f"Total {len(files)} images found")
+    img_details = []
     for idx, file_path in enumerate(files):
         print(f"Processing image: {file_path} [{idx + 1}/{len(files)}]")
         try:
-            process_image(file_path,
-                          output_dir,
-                          model,
-                          transform,
-                          specified_tags,
-                          tag2text_model,
-                          box_threshold,
-                          text_threshold,
-                          iou_threshold,
-                          device)
+            img_caption = process_image(file_path,
+                                        output_dir,
+                                        model,
+                                        transform,
+                                        specified_tags,
+                                        tag2text_model,
+                                        box_threshold,
+                                        text_threshold,
+                                        iou_threshold,
+                                        device)
+            img_details.append({
+                'image': str(file_path),
+                'caption': img_caption
+            })
         except Exception as e:
             print(f"Error: {e}")
             continue
+    with open(os.path.join(output_dir, 'img_details.json'), 'w') as f:
+        json.dump(img_details, f, indent=4)
