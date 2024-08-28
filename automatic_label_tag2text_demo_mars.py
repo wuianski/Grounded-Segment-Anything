@@ -522,6 +522,8 @@ if __name__ == "__main__":
         if file_path.is_file() and file_path.suffix.lower() in image_extensions:
             files.append(file_path)
     print(f"Total {len(files)} images found")
+    myDir = str(images_dir).replace("assets/", "")
+    # print("myDir", myDir)
     img_details = []
     for idx, file_path in enumerate(files):
         print(f"Processing image: {file_path} [{idx + 1}/{len(files)}]")
@@ -543,5 +545,5 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Error: {e}")
             continue
-    with open(os.path.join(output_dir, 'img_details.json'), 'w') as f:
+    with open(os.path.join(output_dir, f'{myDir}.json'), 'w') as f:
         json.dump(img_details, f, indent=4)

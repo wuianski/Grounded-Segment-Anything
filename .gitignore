@@ -133,3 +133,10 @@ dmypy.json
 outputs/
 
 .idea/
+
+# assets
+assets/
+
+.DS_Store
+
+
