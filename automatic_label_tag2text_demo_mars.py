@@ -1,4 +1,5 @@
 import argparse
+import gc
 import os
 from pathlib import Path
 import copy
@@ -436,6 +437,16 @@ def process_image(image_path, output_dir,
     # save_mask_data(caption, masks, boxes_filt, pred_phrases, results_dir, temp_dir)
     save_mask_crop((H, W), masks, boxes_filt.cpu().numpy(), pred_phrases, temp_dir, results_dir, crop_dir, caption,
                    boxes_filt)
+
+    # free all memory and call gc
+    image_pil.close()
+    del image
+    del boxedTag2text_model
+    del raw_image
+    del res
+    del boxes_filt
+    del predictor
+    gc.collect()
 
     return caption
 
